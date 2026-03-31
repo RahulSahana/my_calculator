@@ -6,6 +6,13 @@ void main() {
     runApp(const MyApp());
 }
 
+class HistoryItem {
+  final String expression;
+  final String answer;
+
+  const HistoryItem(this.expression, this.answer);
+}
+
 class MyApp extends StatelessWidget {
     const MyApp({super.key});
 
@@ -35,9 +42,16 @@ class MyCalculatorPage extends StatefulWidget {
 class _MyCalculatorPageState extends State<MyCalculatorPage> {
 
   String _expression = '0';
+  String _answer = '0';
+  bool _justEvaluated = false;
+  final List<HistoryItem> _history = [];
 
   void _onDigitPressed(String digit) {
     setState(() {
+      if(_justEvaluated) {
+        _expression = '0';
+        _justEvaluated = false;
+      }
       if(_expression == 'Error' || _expression == 'Infinity' || _expression == 'NaN')  _expression = '0';
       if(_expression == '0'){
         _expression = digit;
@@ -49,6 +63,10 @@ class _MyCalculatorPageState extends State<MyCalculatorPage> {
 
   void _onOperatorPressed(String operator) {
     setState(() {
+        if(_justEvaluated) {
+          _expression = _answer;
+          _justEvaluated = false;
+        }
         if(_expression.isEmpty ) return;
         if(_expression == 'Error' || _expression == 'Infinity' || _expression == 'NaN')  _expression = '0';
         String last = _expression[_expression.length-1];
@@ -67,11 +85,11 @@ class _MyCalculatorPageState extends State<MyCalculatorPage> {
       try {
         double current = double.parse(_expression);
         current = current / 100;
-        _expression = current
+        _answer = current
             .toStringAsFixed(6)
             .replaceAll(RegExp(r'\.?0+$'), '');
       } catch (e) {
-        _expression = 'Error';
+        _answer = 'Error';
       }
 
     });
@@ -84,10 +102,12 @@ class _MyCalculatorPageState extends State<MyCalculatorPage> {
           Expression exp = p.parse(_expression);
           ContextModel cm = ContextModel();
           double result = exp.evaluate(EvaluationType.REAL, cm);
-          _expression = result.toStringAsFixed(6).replaceAll(RegExp(r'\.?0+$'), '');
+          _answer = result.toStringAsFixed(6).replaceAll(RegExp(r'\.?0+$'), '');
+          _history.add(HistoryItem(_expression, _answer));
         } catch (e) {
-          _expression = 'Error';
+          _answer = 'Error';
         }
+        _justEvaluated = true;
     });
   }
 
@@ -104,7 +124,15 @@ class _MyCalculatorPageState extends State<MyCalculatorPage> {
   void _clear() {
     setState(() {
       _expression = '0';
+      _answer = '0';
     });
+  }
+
+  double _getFontSize(int length) {
+    if (length < 10) return 40.0;
+    if (length < 20) return 30.0;
+    if (length < 30) return 20.0;
+    return 15.0;
   }
 
   Widget _buildButton(String text, VoidCallback onPressed, {Color ?  color}) {
@@ -125,14 +153,75 @@ class _MyCalculatorPageState extends State<MyCalculatorPage> {
         body: Column(
           children: [
             Expanded(
-                child: Container(
-                  alignment: Alignment.bottomRight,
-                  padding: const EdgeInsets.all(24),
-                  child: Text(
-                    _expression,
-                    style: TextStyle(fontSize: 64, fontWeight: FontWeight.bold , color: Colors.deepOrange),
-                  ),
+              // history
+                child: ListView.builder(
+                    reverse: false,
+                    itemCount: _history.length,
+                    itemBuilder: (context , index){
+                      final item = _history[index];
+
+                      return Padding(
+                          padding: const EdgeInsets.all(4),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              // expression
+                              Text(
+                                item.expression,
+                                style: TextStyle(
+                                    fontSize: _getFontSize(item.expression.length),
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black12
+                                ),
+                              ),
+                              // answer
+                              Text(
+                                "= ${item.answer}",
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black12,
+                                ),
+                              ),
+                            ],
+                          ),
+                      );
+                    },
                 ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(right: 20),
+              child: Column(
+                children: [
+                  // expression
+                  Container(
+                    alignment: Alignment.bottomRight,
+                    child: Text(
+                      _expression,
+                      style: TextStyle(
+                          fontSize: _getFontSize(_expression.length),
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black
+                      ),
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  // answer
+                  Container(
+                    alignment: Alignment.bottomRight,
+                    child: Text(
+                      "= $_answer",
+                      style: const TextStyle(
+                        fontSize: 48,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.deepOrange,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
             Padding(
               padding: const EdgeInsets.all(16),
