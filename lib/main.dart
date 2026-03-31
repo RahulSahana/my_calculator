@@ -60,19 +60,26 @@ class _MyCalculatorPageState extends State<MyCalculatorPage> {
 
 
 
-  double _percentage(double current) {
+  void _percentagePressed() {
     setState(() {
-      if(_firstOperand != null || _operator != null) {
-        if(_operator == '+' || _operator == '-') {
+      double current = double.tryParse(_display) ?? 0;
+
+      if (_firstOperand != null && _operator != null) {
+        if (_operator == '+' || _operator == '-') {
           current = (_firstOperand! * current) / 100;
-        } else if(_operator == '*' || _operator == '/') {
-          current = (_firstOperand! / current) * 100;
-        } else {
+        } else if (_operator == 'X' || _operator == '/' || _operator == '^') {
           current = current / 100;
         }
+      } else {
+        current = current / 100;
       }
+
+      _display = current
+          .toStringAsFixed(6)
+          .replaceAll(RegExp(r'\.?0+$'), '');
+
+      _shouldReset = true;
     });
-    return current;
   }
 
   void _calculate() {
@@ -96,9 +103,6 @@ class _MyCalculatorPageState extends State<MyCalculatorPage> {
             break;
           case '^':
             result = pow(_firstOperand!, secondOperand).toDouble();
-            break;
-          case '%':
-            result = _percentage(secondOperand);
             break;
         }
         _display = result.toString().replaceAll(RegExp(r'\.0$'), '');
@@ -192,7 +196,7 @@ class _MyCalculatorPageState extends State<MyCalculatorPage> {
                     _buildButton('1', () => _onDigitPressed('1')),
                     _buildButton('2', () => _onDigitPressed('2')),
                     _buildButton('3', () => _onDigitPressed('3')),
-                    _buildButton('%', () => _onOperatorPressed('%'), color: Colors.deepOrange),
+                    _buildButton('%', _percentagePressed, color: Colors.deepOrange),
                   ],),
                   const SizedBox(height: 16),
                   Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
