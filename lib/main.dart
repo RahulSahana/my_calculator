@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
                 colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrangeAccent),
                 useMaterial3: true
             ),
-            home: const MyCalculatorPage(title: "My_Calculator"),
+            home: const MyCalculatorPage(title: "My_Calculator 🔥"),
         );
   }
 }
@@ -148,7 +148,34 @@ class _MyCalculatorPageState extends State<MyCalculatorPage> {
       return Scaffold(
         appBar: AppBar(
             backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-            title: Text(widget.title , style: TextStyle(fontWeight: FontWeight.bold , color: Colors.deepOrange , letterSpacing: 1),),
+            title: Text(widget.title , style: TextStyle(fontFamily: 'RobotoCustom',fontWeight: FontWeight.bold , color: Colors.deepOrange , letterSpacing: 1),),
+            actions: [
+              IconButton(
+                  icon: Icon(Icons.delete_outlined),
+                  onPressed: () {
+                    showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: Text('Clear History',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black),),
+                          content: Text('Are you sure you want to clear the history?',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black),),
+                          actions: [
+                            TextButton(onPressed: () => Navigator.pop(context), child: Text("Cancel",style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black),)),
+                            TextButton(onPressed: () {
+                                setState(() {
+                                  _history.clear();
+                                });
+                                Navigator.pop(context);
+                                },
+                                child: Text("Clear",style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black),)
+                            ),
+
+                          ],
+                        ),
+                    );
+              },
+
+              )
+            ],
         ),
         body: Column(
           children: [
