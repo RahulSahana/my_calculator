@@ -169,7 +169,7 @@ class _MyCalculatorPageState extends State<MyCalculatorPage> {
                               Text(
                                 item.expression,
                                 style: TextStyle(
-                                    fontSize: _getFontSize(item.expression.length),
+                                    fontSize: (item.expression.length < 20) ? 25 : _getFontSize(item.expression.length),
                                     fontWeight: FontWeight.bold,
                                     color: Colors.black12
                                 ),
