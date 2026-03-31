@@ -38,6 +38,7 @@ class _MyCalculatorPageState extends State<MyCalculatorPage> {
 
   void _onDigitPressed(String digit) {
     setState(() {
+      if(_expression == 'Error' || _expression == 'Infinity' || _expression == 'NaN')  _expression = '0';
       if(_expression == '0'){
         _expression = digit;
       } else {
@@ -48,7 +49,8 @@ class _MyCalculatorPageState extends State<MyCalculatorPage> {
 
   void _onOperatorPressed(String operator) {
     setState(() {
-        if(_expression.isEmpty) return;
+        if(_expression.isEmpty ) return;
+        if(_expression == 'Error' || _expression == 'Infinity' || _expression == 'NaN')  _expression = '0';
         String last = _expression[_expression.length-1];
         if('+-*/^'.contains(last)){
           _expression = _expression.substring(0, _expression.length-1) + operator;
