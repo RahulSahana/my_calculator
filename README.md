@@ -15,6 +15,7 @@ I tried to design it like a real calculator (not just basic buttons), and also w
 - Backspace (⌫) with smart behavior
 - Clear (AC)
 - Custom calculator layout (not default boring grid)
+- Used expressions to calculate
 
 ---
 
@@ -37,9 +38,9 @@ I tried to design it like a real calculator (not just basic buttons), and also w
 
 ## ⚠️ Still working on
 
-- Full expression support (like 12 + 3 * 5)
 - Better UI animations
 - History feature
+- Different types of calculator works
 
 ---
 
@@ -49,12 +50,13 @@ I wanted to build something more than just a basic app and understand:
 
 - how UI + logic connects
 - how real apps handle user input
+- how to calculate a given expression
 
 ---
 
 ## 📸 Screenshots
 
-![](screenshots/app_v_1.0.png)
+![](screenshots/app_v_2.0.0.png)
 
 
 ---

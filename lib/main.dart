@@ -1,5 +1,5 @@
 import 'dart:math';
-
+import 'package:math_expressions/math_expressions.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -34,27 +34,27 @@ class MyCalculatorPage extends StatefulWidget {
 
 class _MyCalculatorPageState extends State<MyCalculatorPage> {
 
-  String _display = '0';
-  double? _firstOperand;
-  String? _operator;
-  bool _shouldReset = false;
+  String _expression = '0';
 
   void _onDigitPressed(String digit) {
     setState(() {
-      if(_display == '0' || _shouldReset ){
-        _display = digit;
-        _shouldReset = false;
+      if(_expression == '0'){
+        _expression = digit;
       } else {
-        _display += digit;
+        _expression += digit;
       }
     });
   }
 
   void _onOperatorPressed(String operator) {
     setState(() {
-        _firstOperand = double.tryParse(_display);
-        _operator = operator;
-        _shouldReset = true;
+        if(_expression.isEmpty) return;
+        String last = _expression[_expression.length-1];
+        if('+-*/^'.contains(last)){
+          _expression = _expression.substring(0, _expression.length-1) + operator;
+        } else {
+          _expression += operator;
+        }
     });
   }
 
@@ -62,81 +62,46 @@ class _MyCalculatorPageState extends State<MyCalculatorPage> {
 
   void _percentagePressed() {
     setState(() {
-      double current = double.tryParse(_display) ?? 0;
-
-      if (_firstOperand != null && _operator != null) {
-        if (_operator == '+' || _operator == '-') {
-          current = (_firstOperand! * current) / 100;
-        } else if (_operator == 'X' || _operator == '/' || _operator == '^') {
-          current = current / 100;
-        }
-      } else {
+      try {
+        double current = double.parse(_expression);
         current = current / 100;
+        _expression = current
+            .toStringAsFixed(6)
+            .replaceAll(RegExp(r'\.?0+$'), '');
+      } catch (e) {
+        _expression = 'Error';
       }
 
-      _display = current
-          .toStringAsFixed(6)
-          .replaceAll(RegExp(r'\.?0+$'), '');
-
-      _shouldReset = true;
     });
   }
 
   void _calculate() {
     setState(() {
-        if(_firstOperand == null || _operator == null) return;
-        double secondOperand = double.tryParse(_display) ?? 0;
-        double result = 0;
-
-        switch(_operator){
-          case '+':
-            result = _firstOperand! + secondOperand;
-            break;
-          case '-':
-            result = _firstOperand! - secondOperand;
-            break;
-          case 'X':
-            result = _firstOperand! * secondOperand;
-            break;
-          case '/':
-            result = _firstOperand! / secondOperand;
-            break;
-          case '^':
-            result = pow(_firstOperand!, secondOperand).toDouble();
-            break;
+        try {
+          Parser p = Parser();
+          Expression exp = p.parse(_expression);
+          ContextModel cm = ContextModel();
+          double result = exp.evaluate(EvaluationType.REAL, cm);
+          _expression = result.toStringAsFixed(6).replaceAll(RegExp(r'\.?0+$'), '');
+        } catch (e) {
+          _expression = 'Error';
         }
-        _display = result.toString().replaceAll(RegExp(r'\.0$'), '');
-        _firstOperand = null;
-        _operator = null;
-        _shouldReset = true;
     });
   }
 
   void _backspace() {
     setState(() {
-      _shouldReset = false;
-      if(_display.isNotEmpty && _display != '0') {
-        if (_display.length > 1) {
-          _display = _display.substring(0, _display.length - 1);
-        } else {
-          _display = "0";
-        }
-      } else if(_operator != null){
-        _operator = null;
-        _display = _firstOperand.toString().replaceAll(RegExp(r'\.0$'), '') ?? '0';
+      if (_expression.length > 1) {
+        _expression = _expression.substring(0, _expression.length - 1);
       } else {
-        _firstOperand = null;
-        _display = '0';
+        _expression = "0";
       }
     });
   }
 
   void _clear() {
     setState(() {
-      _display = '0';
-      _firstOperand = null;
-      _operator = null;
-      _shouldReset = false;
+      _expression = '0';
     });
   }
 
@@ -162,7 +127,7 @@ class _MyCalculatorPageState extends State<MyCalculatorPage> {
                   alignment: Alignment.bottomRight,
                   padding: const EdgeInsets.all(24),
                   child: Text(
-                    _display,
+                    _expression,
                     style: TextStyle(fontSize: 64, fontWeight: FontWeight.bold , color: Colors.deepOrange),
                   ),
                 ),
@@ -174,7 +139,7 @@ class _MyCalculatorPageState extends State<MyCalculatorPage> {
                   Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
                     _buildButton('AC', _clear , color: Colors.red),
                     _buildButton('/', () => _onOperatorPressed('/'), color: Colors.deepOrange),
-                    _buildButton('X', () => _onOperatorPressed('X'), color: Colors.deepOrange),
+                    _buildButton('X', () => _onOperatorPressed('*'), color: Colors.deepOrange),
                     _buildButton('-', () => _onOperatorPressed('-'), color: Colors.deepOrange),
                   ],),
                   const SizedBox(height: 16),
