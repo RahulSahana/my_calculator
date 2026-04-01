@@ -47,6 +47,7 @@ class _MyCalculatorPageState extends State<MyCalculatorPage> {
   String _perExpression = '';
   bool _isPercentage = false;
   bool _isAdvanced = false;
+  int _openBrackets = 0;
 
 
   final List<HistoryItem> _history = [];
@@ -55,6 +56,7 @@ class _MyCalculatorPageState extends State<MyCalculatorPage> {
     setState(() {
       if(_justEvaluated) {
         _expression = '0';
+        _answer = '0';
         _justEvaluated = false;
       }
       if(_expression == 'Error' || _expression == 'Infinity' || _expression == 'NaN')  _expression = '0';
@@ -81,6 +83,55 @@ class _MyCalculatorPageState extends State<MyCalculatorPage> {
           _expression += operator;
         }
     });
+  }
+
+  void _openBracket() {
+    setState(() {
+      if(_expression.isEmpty || _expression == '0') {
+        _expression = '(';
+      } else {
+        String last = _expression[_expression.length-1];
+
+        if(RegExp(r'[0-9)eπ]').hasMatch(last)) {
+          _expression += '*(';
+        } else {
+          _expression += '(';
+        }
+      }
+      _openBrackets++;
+    });
+  }
+
+  void _closeBracket() {
+    setState(() {
+      if(_openBrackets > 0) {
+        String last = _expression.isEmpty ? '' : _expression[_expression.length-1];
+        if(!'+-*/^'.contains(last)) {
+          _expression += ')';
+          _openBrackets--;
+        }
+      }
+    });
+  }
+
+  String _prepareExpression() {
+    String exp = _expression;
+
+    exp = exp
+        .replaceAll('π', '3.14159265')
+        .replaceAll('√', 'sqrt(');
+
+    while (_openBrackets > 0) {
+      exp += ')';
+      _openBrackets--;
+    }
+
+    if (exp.isNotEmpty &&
+        '+-*/^('.contains(exp[exp.length - 1])) {
+      exp = exp.substring(0, exp.length - 1);
+    }
+
+    return exp;
   }
 
 
@@ -122,8 +173,9 @@ class _MyCalculatorPageState extends State<MyCalculatorPage> {
   void _calculate() {
     setState(() {
         try {
+          String finalExp =  _prepareExpression();
           Parser p = Parser();
-          Expression exp = p.parse(_expression);
+          Expression exp = p.parse(finalExp);
           ContextModel cm = ContextModel();
           double result = exp.evaluate(EvaluationType.REAL, cm);
           _answer = result.toStringAsFixed(6).replaceAll(RegExp(r'\.?0+$'), '');
@@ -143,6 +195,7 @@ class _MyCalculatorPageState extends State<MyCalculatorPage> {
     setState(() {
       if (_expression.length > 1) {
         _expression = _expression.substring(0, _expression.length - 1);
+        _justEvaluated = false;
       } else {
         _expression = "0";
       }
@@ -153,6 +206,7 @@ class _MyCalculatorPageState extends State<MyCalculatorPage> {
     setState(() {
       _expression = '0';
       _answer = '0';
+      _justEvaluated = false;
     });
   }
 
@@ -232,10 +286,10 @@ class _MyCalculatorPageState extends State<MyCalculatorPage> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             _buildButton('tan', () => _onOperatorPressed('tan(')),
-            _buildButton('√', () => _onOperatorPressed('sqrt(')),
+            _buildButton('√', () => _onDigitPressed('√')),
             _buildButton('^', () => _onOperatorPressed('^')),
-            _buildButton('(', () => _onOperatorPressed('(')),
-            _buildButton(')', () => _onOperatorPressed(')')),
+            _buildButton('(', _openBracket),
+            _buildButton(')', _closeBracket),
           ],
         ),
         const SizedBox(height: 10),
@@ -295,7 +349,7 @@ class _MyCalculatorPageState extends State<MyCalculatorPage> {
               },
               color: Colors.greenAccent,
             ),
-            _buildButton('π', () => _onDigitPressed('3.1416')),
+            _buildButton('π', () => _onDigitPressed('π')),
             _buildButton('0', () => _onDigitPressed('0')),
             _buildButton('.', () => _onDigitPressed('.')),
             _buildButton('=', _calculate, color: Colors.green,),
@@ -402,10 +456,10 @@ class _MyCalculatorPageState extends State<MyCalculatorPage> {
                     alignment: Alignment.bottomRight,
                     child: Text(
                       "= $_answer",
-                      style: const TextStyle(
-                        fontSize: 48,
+                      style:  TextStyle(
+                        fontSize: _justEvaluated ? 48 : 20,
                         fontWeight: FontWeight.bold,
-                        color: Colors.deepOrange,
+                        color: _justEvaluated ? Colors.deepOrange : Colors.orangeAccent,
                       ),
                     ),
                   ),
@@ -415,8 +469,8 @@ class _MyCalculatorPageState extends State<MyCalculatorPage> {
             Padding(
               padding: const EdgeInsets.all(16),
               child: _isAdvanced ? _advancedPad() : _basicPad(),
-
             ),
+            SizedBox(height: 20),
           ],
         ),
       );
