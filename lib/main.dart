@@ -1,4 +1,4 @@
-import 'dart:math';
+
 import 'package:math_expressions/math_expressions.dart';
 import 'package:flutter/material.dart';
 
@@ -44,6 +44,11 @@ class _MyCalculatorPageState extends State<MyCalculatorPage> {
   String _expression = '0';
   String _answer = '0';
   bool _justEvaluated = false;
+  String _perExpression = '';
+  bool _isPercentage = false;
+  bool _isAdvanced = false;
+
+
   final List<HistoryItem> _history = [];
 
   void _onDigitPressed(String digit) {
@@ -83,11 +88,30 @@ class _MyCalculatorPageState extends State<MyCalculatorPage> {
   void _percentagePressed() {
     setState(() {
       try {
-        double current = double.parse(_expression);
-        current = current / 100;
-        _answer = current
-            .toStringAsFixed(6)
-            .replaceAll(RegExp(r'\.?0+$'), '');
+        _perExpression = "$_expression%";
+        _isPercentage = true;
+        int i = _expression.length - 1;
+        while (i > 0) {
+          String ch = _expression[i];
+          if ('+-*/'.contains(ch)) {
+            break;
+          }
+          i--;
+        }
+
+        if (i <= 0) return;
+
+        String left = _expression.substring(0, i);
+        String op = _expression[i];
+        String right = _expression.substring(i + 1);
+
+        double first = double.parse(left);
+        double second = double.parse(right);
+        double per = second / 100;
+
+        String result = (first*per).toString();
+        _expression = _expression.substring(0, i + 1) + result;
+
       } catch (e) {
         _answer = 'Error';
       }
@@ -103,6 +127,10 @@ class _MyCalculatorPageState extends State<MyCalculatorPage> {
           ContextModel cm = ContextModel();
           double result = exp.evaluate(EvaluationType.REAL, cm);
           _answer = result.toStringAsFixed(6).replaceAll(RegExp(r'\.?0+$'), '');
+          if(_isPercentage) {
+            _expression = _perExpression;
+            _isPercentage = false;
+          }
           _history.add(HistoryItem(_expression, _answer));
         } catch (e) {
           _answer = 'Error';
@@ -141,6 +169,98 @@ class _MyCalculatorPageState extends State<MyCalculatorPage> {
         child: Text(text , style: TextStyle(fontSize: 20 , fontWeight: FontWeight.bold)),
         backgroundColor:  color ?? Theme.of(context).colorScheme.primaryContainer,
       );
+  }
+
+  Widget _basicPad() {
+    return Column(
+      children : [
+        Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+          _buildButton('AC', _clear , color: Colors.red),
+          _buildButton('/', () => _onOperatorPressed('/'), color: Colors.deepOrange),
+          _buildButton('X', () => _onOperatorPressed('*'), color: Colors.deepOrange),
+          _buildButton('-', () => _onOperatorPressed('-'), color: Colors.deepOrange),
+        ],
+        ),
+        const SizedBox(height: 16),
+        Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+          _buildButton('7', () => _onDigitPressed('7')),
+          _buildButton('8', () => _onDigitPressed('8')),
+          _buildButton('9', () => _onDigitPressed('9')),
+          _buildButton('+', () => _onOperatorPressed('+'), color: Colors.deepOrange),
+        ],
+        ),
+        const SizedBox(height: 16),
+        Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+          _buildButton('4', () => _onDigitPressed('4')),
+          _buildButton('5', () => _onDigitPressed('5')),
+          _buildButton('6', () => _onDigitPressed('6')),
+          _buildButton('%', _percentagePressed, color: Colors.deepOrange),
+        ],
+        ),
+        const SizedBox(height: 16),
+        Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+          _buildButton('1', () => _onDigitPressed('1')),
+          _buildButton('2', () => _onDigitPressed('2')),
+          _buildButton('3', () => _onDigitPressed('3')),
+          _buildButton('⌫', _backspace , color: Colors.blue),
+        ],
+        ),
+        const SizedBox(height: 16),
+        Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+          _buildButton(
+            _isAdvanced ? '🔬' : '⌨️',
+                () {
+              setState(() {
+                _isAdvanced = !_isAdvanced;
+              });
+            },
+            color: Colors.blue,
+          ),
+          _buildButton('0', () => _onDigitPressed('0'),),
+          _buildButton('.', () => _onDigitPressed('.'),),
+          _buildButton('=', _calculate , color: Colors.green),
+        ],
+        ),
+      ],
+    );
+  }
+
+  Widget _advancedPad() {
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            _buildButton('(', () => _onOperatorPressed('(')),
+            _buildButton(')', () => _onOperatorPressed(')')),
+            _buildButton('^', () => _onOperatorPressed('^')),
+            _buildButton('√', () => _onOperatorPressed('sqrt(')),
+          ],
+        ),
+        const SizedBox(height: 10),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            _buildButton('sin', () => _onOperatorPressed('sin(')),
+            _buildButton('cos', () => _onOperatorPressed('cos(')),
+            _buildButton('tan', () => _onOperatorPressed('tan(')),
+            _buildButton('log', () => _onOperatorPressed('log(')),
+          ],
+        ),
+        const SizedBox(height: 10),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            _buildButton('ln', () => _onOperatorPressed('ln(')),
+            _buildButton('π', () => _onDigitPressed('3.1416')),
+            _buildButton('e', () => _onDigitPressed('2.7183')),
+            _buildButton('%', _percentagePressed),
+          ],
+        ),
+        const SizedBox(height: 16),
+        _basicPad(),
+      ],
+    );
   }
 
   @override
@@ -252,44 +372,8 @@ class _MyCalculatorPageState extends State<MyCalculatorPage> {
             ),
             Padding(
               padding: const EdgeInsets.all(16),
-              child: Column(
-                children : [
-                  Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-                    _buildButton('AC', _clear , color: Colors.red),
-                    _buildButton('/', () => _onOperatorPressed('/'), color: Colors.deepOrange),
-                    _buildButton('X', () => _onOperatorPressed('*'), color: Colors.deepOrange),
-                    _buildButton('-', () => _onOperatorPressed('-'), color: Colors.deepOrange),
-                  ],),
-                  const SizedBox(height: 16),
-                  Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-                    _buildButton('7', () => _onDigitPressed('7')),
-                    _buildButton('8', () => _onDigitPressed('8')),
-                    _buildButton('9', () => _onDigitPressed('9')),
-                    _buildButton('+', () => _onOperatorPressed('+'), color: Colors.deepOrange),
-                  ],),
-                  const SizedBox(height: 16),
-                  Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-                    _buildButton('4', () => _onDigitPressed('4')),
-                    _buildButton('5', () => _onDigitPressed('5')),
-                    _buildButton('6', () => _onDigitPressed('6')),
-                    _buildButton('^', () => _onOperatorPressed('^'), color: Colors.deepOrange),
-                  ],),
-                  const SizedBox(height: 16),
-                  Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-                    _buildButton('1', () => _onDigitPressed('1')),
-                    _buildButton('2', () => _onDigitPressed('2')),
-                    _buildButton('3', () => _onDigitPressed('3')),
-                    _buildButton('%', _percentagePressed, color: Colors.deepOrange),
-                  ],),
-                  const SizedBox(height: 16),
-                  Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-                    _buildButton('0', () => _onDigitPressed('0'),),
-                    _buildButton('.', () => _onDigitPressed('.'),),
-                    _buildButton('⌫', _backspace , color: Colors.blue),
-                    _buildButton('=', _calculate , color: Colors.green),
-                  ],),
-                ],
-              ),
+              child: _isAdvanced ? _advancedPad() : _basicPad(),
+
             ),
           ],
         ),
