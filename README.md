@@ -68,5 +68,5 @@ If you have suggestions, feel free to share!
 
 ## 📦 Download APK
 
-👉 [Click here to download the app](https://github.com/RahulSahana/my_calculator/releases/download/v2.1.1/calculator-app-v2.1.1.apk)
+👉 [Click here to download the app](https://github.com/RahulSahana/my_calculator/releases/download/2.2.0/calculator-app-v2.2.0.apk)
 
