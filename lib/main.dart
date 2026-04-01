@@ -214,7 +214,7 @@ class _MyCalculatorPageState extends State<MyCalculatorPage> {
                 _isAdvanced = !_isAdvanced;
               });
             },
-            color: Colors.blue,
+            color: Colors.greenAccent,
           ),
           _buildButton('0', () => _onDigitPressed('0'),),
           _buildButton('.', () => _onDigitPressed('.'),),
@@ -231,10 +231,22 @@ class _MyCalculatorPageState extends State<MyCalculatorPage> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
+            _buildButton('tan', () => _onOperatorPressed('tan(')),
+            _buildButton('√', () => _onOperatorPressed('sqrt(')),
+            _buildButton('^', () => _onOperatorPressed('^')),
             _buildButton('(', () => _onOperatorPressed('(')),
             _buildButton(')', () => _onOperatorPressed(')')),
-            _buildButton('^', () => _onOperatorPressed('^')),
-            _buildButton('√', () => _onOperatorPressed('sqrt(')),
+          ],
+        ),
+        const SizedBox(height: 10),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            _buildButton('cos', () => _onOperatorPressed('cos(')),
+            _buildButton('AC', _clear , color: Colors.red),
+            _buildButton('/', () => _onOperatorPressed('/'), color: Colors.deepOrange),
+            _buildButton('X', () => _onOperatorPressed('*'), color: Colors.deepOrange),
+            _buildButton('-', () => _onOperatorPressed('-'), color: Colors.deepOrange),
           ],
         ),
         const SizedBox(height: 10),
@@ -242,23 +254,53 @@ class _MyCalculatorPageState extends State<MyCalculatorPage> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             _buildButton('sin', () => _onOperatorPressed('sin(')),
-            _buildButton('cos', () => _onOperatorPressed('cos(')),
-            _buildButton('tan', () => _onOperatorPressed('tan(')),
-            _buildButton('log', () => _onOperatorPressed('log(')),
+            _buildButton('7', () => _onDigitPressed('7')),
+            _buildButton('8', () => _onDigitPressed('8')),
+            _buildButton('9', () => _onDigitPressed('9')),
+            _buildButton('+', () => _onOperatorPressed('+'), color: Colors.deepOrange),
           ],
         ),
         const SizedBox(height: 10),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            _buildButton('ln', () => _onOperatorPressed('ln(')),
-            _buildButton('π', () => _onDigitPressed('3.1416')),
-            _buildButton('e', () => _onDigitPressed('2.7183')),
-            _buildButton('%', _percentagePressed),
+            _buildButton('log', () => _onOperatorPressed('log(')),
+            _buildButton('4', () => _onDigitPressed('4')),
+            _buildButton('5', () => _onDigitPressed('5')),
+            _buildButton('6', () => _onDigitPressed('6')),
+            _buildButton('%', _percentagePressed, color: Colors.deepOrange),
           ],
         ),
-        const SizedBox(height: 16),
-        _basicPad(),
+        const SizedBox(height: 10),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            _buildButton('e', () => _onDigitPressed('2.7183')),
+            _buildButton('1', () => _onDigitPressed('1')),
+            _buildButton('2', () => _onDigitPressed('2')),
+            _buildButton('3', () => _onDigitPressed('3')),
+            _buildButton('⌫', _backspace, color: Colors.blue),
+          ],
+        ),
+        const SizedBox(height: 10),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            _buildButton(
+              _isAdvanced ? '🔬' : '⌨️',
+                  () {
+                setState(() {
+                  _isAdvanced = !_isAdvanced;
+                });
+              },
+              color: Colors.greenAccent,
+            ),
+            _buildButton('π', () => _onDigitPressed('3.1416')),
+            _buildButton('0', () => _onDigitPressed('0')),
+            _buildButton('.', () => _onDigitPressed('.')),
+            _buildButton('=', _calculate, color: Colors.green,),
+          ],
+        ),
       ],
     );
   }
