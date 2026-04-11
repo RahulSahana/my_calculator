@@ -1,72 +1,106 @@
-# 📱 Calculator App (Flutter)
+# 📱 🚀 Multi-Utility Calculator App (Flutter)
 
 Hey 👋  
-This is a calculator app I built while learning Flutter.
+This is a multi-utility calculator app I built using Flutter while exploring both **UI design and real-world calculation logic**.
 
-I tried to design it like a real calculator (not just basic buttons), and also worked on handling different operations properly.
+What started as a simple calculator has now evolved into a **feature-rich utility app with multiple modules**.
 
 ---
 
-## 🚀 What I’ve implemented
+## 🚀 Features
 
-- Basic operations: +  -  ×  ÷
-- Power operator ^
-- Percentage % (with proper calculator logic)
-- Backspace (⌫) with smart behavior
+### 🧮 Standard Calculator
+- Basic operations: +  −  ×  ÷
+- Power operator ( ^ )
+- Percentage (%) with real calculator logic
+- Full expression evaluation (BODMAS supported)
+- Backspace (⌫) with smart handling
 - Clear (AC)
-- Custom calculator layout (not default boring grid)
-- Used expressions to calculate
+- Dynamic expression display
+- Proper result handling after `=` (no incorrect chaining)
 
 ---
 
-## 🧠 What I learned
+### 📊 Conversion Module
+- Clean grid-based UI for multiple converters
 
-- Flutter UI (Grid + custom layout)
-- State management using setState
-- Handling edge cases in logic (this part was tricky 😅)
-- How real calculators actually work internally
-- Debugging weird bugs (especially _shouldReset 😵)
+Includes:
+- Length
+- Mass
+- Temperature
+- Time
+- Data
+- Area
+- Volume
+- And more...
+
+Custom conversion screen features:
+- Unit selection (dropdown-style)
+- Live value updates
+- Custom numpad input
 
 ---
 
-## 🛠 Tech Used
+### 🕘 History Feature
+- Stores previous calculations
+- Scrollable history view
+- Clean and minimal UI
+
+---
+
+## 🧠 What I Learned
+
+- Building **custom UI layouts** instead of default widgets
+- Managing state using `setState` efficiently
+- Handling **expression parsing & evaluation**
+- Implementing **multi-page navigation (Navigator)**
+- Structuring a Flutter app into **modular components**
+- Handling real-world edge cases in user input
+- Designing UI similar to real apps (not tutorial-style)
+
+---
+
+## 🛠 Tech Stack
 
 - Flutter
 - Dart
 
 ---
 
-## ⚠️ Still working on
+## ⚠️ Work in Progress
 
-- Better UI animations
-- History feature
-- Different types of calculator works
+- More converters (Finance, advanced tools)
+- UI animations & transitions
+- Data persistence (saving history permanently)
+- Theme customization
 
 ---
 
-## 💭 Why I made this
+## 💭 Motivation
 
-I wanted to build something more than just a basic app and understand:
+I built this project to go beyond basic apps and understand:
 
-- how UI + logic connects
-- how real apps handle user input
-- how to calculate a given expression
+- How UI and logic interact in real applications
+- How calculators actually process expressions
+- How to design a scalable Flutter app structure
 
 ---
 
 ## 📸 Screenshots
 
-![](screenshots/app_v_2.0.0.png)
+> Add your latest screenshots here
 
+![App Screenshot](screenshots/app_v_3.0.0.png)
+
+---
+
+## 📦 Download APK
+
+👉 [Download v3.0.0](https://github.com/RahulSahana/my_calculator/releases/download/v3.0.0/calculator-app-v3.0.0.apk)
 
 ---
 
 ## 🙃 Note
 
-I’m still learning, so the code might not be perfect.  
-If you have suggestions, feel free to share!
-
-## 📦 Download APK
-
-👉 [Click here to download the app](https://github.com/RahulSahana/my_calculator/releases/download/2.2.0/calculator-app-v2.2.0.apk)
-
+I’m continuously improving this project as I learn more.  
+If you have suggestions or ideas, feel free to share!
