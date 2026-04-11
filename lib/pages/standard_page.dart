@@ -68,12 +68,20 @@ class _MyCalculatorPageState extends State<MyCalculatorPage> {
           _expression == 'Infinity' ||
           _expression == 'NaN')
         _expression = '0';
+
+      if (operator.endsWith('(')) {
+        _openBrackets++;
+      }
+
       String last = _expression[_expression.length - 1];
-      if ('+-*/^'.contains(last)) {
-        _expression =
-            _expression.substring(0, _expression.length - 1) + operator;
+      if ('+-*/^'.contains(last) && !operator.endsWith('(')) {
+        _expression = _expression.substring(0, _expression.length - 1) + operator;
       } else {
-        _expression += operator;
+        if (_expression == '0' && operator.endsWith('(')) {
+          _expression = operator;
+        } else {
+          _expression += operator;
+        }
       }
     });
   }
