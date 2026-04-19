@@ -61,6 +61,7 @@ class _ConversionPageState extends State<ConversionPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               FloatingActionButton(
+                backgroundColor: Colors.purple[100],
                 heroTag: index,
                 onPressed: () {
                   Navigator.push(
@@ -70,7 +71,7 @@ class _ConversionPageState extends State<ConversionPage> {
                     ),
                   );
                 },
-                child: Icon(items[index]["icon"]),
+                child: Icon(items[index]["icon"],color: Colors.black,),
               ),
               const SizedBox(height: 8),
               Text(

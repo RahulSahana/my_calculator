@@ -10,6 +10,21 @@ class Length extends StatefulWidget {
 class _LengthState extends State<Length> {
   String _input = "0";
 
+  String _fromUnit = "m";
+  String _toUnit = "cm";
+
+  final List<String> _units = ["m", "cm", "mm", "km", "inch", "ft"];
+
+  // Conversion factors (base: meter)
+  final Map<String, double> _conversionToMeter = {
+    "m": 1,
+    "cm": 0.01,
+    "mm": 0.001,
+    "km": 1000,
+    "inch": 0.0254,
+    "ft": 0.3048,
+  };
+
   void _handleInput(String text) {
     setState(() {
       if (text == "AC") {
@@ -20,12 +35,12 @@ class _LengthState extends State<Length> {
         } else {
           _input = "0";
         }
-      } else if (text.isNotEmpty) {
+      } else {
         if (_input == "0" && text != ".") {
           _input = text;
         } else {
           if (text == "." && _input.contains(".")) return;
-          if (_input.length < 10) { // Limit length to prevent overflow
+          if (_input.length < 10) {
             _input += text;
           }
         }
@@ -35,16 +50,34 @@ class _LengthState extends State<Length> {
 
   String _convert(String value, String from, String to) {
     double val = double.tryParse(value) ?? 0;
-    double result = 0;
 
-    // Simple logic: 1 Meter = 100 Centimeters
-    if (from == "m" && to == "cm") result = val * 100;
-    else if (from == "cm" && to == "m") result = val / 100;
-    else result = val;
+    double inMeters = val * (_conversionToMeter[from] ?? 1);
+    double result = inMeters / (_conversionToMeter[to] ?? 1);
 
-    // Formatting: Remove trailing zeros for a cleaner look
     if (result == result.toInt()) return result.toInt().toString();
-    return result.toStringAsFixed(4).replaceAll(RegExp(r'0*$'), '').replaceAll(RegExp(r'\.$'), '');
+    return result
+        .toStringAsFixed(6)
+        .replaceAll(RegExp(r'0*$'), '')
+        .replaceAll(RegExp(r'\.$'), '');
+  }
+
+  String _getLabel(String unit) {
+    switch (unit) {
+      case "m":
+        return "Meter";
+      case "cm":
+        return "Centimeter";
+      case "mm":
+        return "Millimeter";
+      case "km":
+        return "Kilometer";
+      case "inch":
+        return "Inch";
+      case "ft":
+        return "Feet";
+      default:
+        return unit;
+    }
   }
 
   Widget _topBar() {
@@ -59,7 +92,7 @@ class _LengthState extends State<Length> {
           const Expanded(
             child: Center(
               child: Text(
-                "Length converter",
+                "Length Converter",
                 style: TextStyle(
                   color: Colors.purpleAccent,
                   fontSize: 22,
@@ -74,31 +107,32 @@ class _LengthState extends State<Length> {
     );
   }
 
-  Widget _displaySection() {
-    return Expanded(
-      flex: 2,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            _unitRow("m", _input, "Meter", isInput: true),
-            _unitRow("cm", _convert(_input, "m", "cm"), "Centimeter", isInput: false),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _unitRow(String unit, String value, String label, {required bool isInput}) {
+  Widget _unitRow(String unit, String value, bool isInput) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Row(
-          children: [
-            Text(unit, style: const TextStyle(color: Colors.purpleAccent, fontSize: 22)),
-            const Icon(Icons.arrow_drop_down, color: Colors.purpleAccent),
-          ],
+        DropdownButton<String>(
+          value: unit,
+          dropdownColor: Colors.black,
+          underline: const SizedBox(),
+          iconEnabledColor: Colors.purpleAccent,
+          style:
+          const TextStyle(color: Colors.purpleAccent, fontSize: 22),
+          items: _units.map((String value) {
+            return DropdownMenuItem(
+              value: value,
+              child: Text(value),
+            );
+          }).toList(),
+          onChanged: (newValue) {
+            setState(() {
+              if (isInput) {
+                _fromUnit = newValue!;
+              } else {
+                _toUnit = newValue!;
+              }
+            });
+          },
         ),
         Column(
           crossAxisAlignment: CrossAxisAlignment.end,
@@ -108,47 +142,38 @@ class _LengthState extends State<Length> {
               child: Text(
                 value,
                 style: TextStyle(
-                  color: isInput ? Colors.purple.shade300 : Colors.purpleAccent.shade100,
+                  color: isInput
+                      ? Colors.purple.shade300
+                      : Colors.purpleAccent.shade100,
                   fontSize: 36,
                   fontWeight: FontWeight.bold,
                 ),
               ),
             ),
-            Text(label, style: const TextStyle(color: Colors.grey)),
+            Text(
+              _getLabel(unit),
+              style: const TextStyle(color: Colors.grey),
+            ),
           ],
         ),
       ],
     );
   }
 
-  Widget _numpad() {
+  Widget _displaySection() {
     return Expanded(
-      flex: 3,
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        child: Row(
+      flex: 2,
+      child: Padding(
+        padding:
+        const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            Expanded(
-              flex: 3,
-              child: Column(
-                children: [
-                  _numRow(["7", "8", "9"]),
-                  _numRow(["4", "5", "6"]),
-                  _numRow(["1", "2", "3"]),
-                  _numRow(["0", ".", ""]),
-                ],
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded( // Use Expanded to ensure buttons fill vertical space
-              child: Column(
-                children: [
-                  _sideButton("AC"),
-                  const SizedBox(height: 10),
-                  _sideButton("⌫"),
-                ],
-              ),
-            ),
+            _unitRow(_fromUnit, _input, true),
+            _unitRow(
+                _toUnit,
+                _convert(_input, _fromUnit, _toUnit),
+                false),
           ],
         ),
       ),
@@ -172,7 +197,8 @@ class _LengthState extends State<Length> {
         child: Center(
           child: Text(
             text,
-            style: const TextStyle(color: Colors.purpleAccent, fontSize: 28),
+            style: const TextStyle(
+                color: Colors.purpleAccent, fontSize: 28),
           ),
         ),
       ),
@@ -184,18 +210,52 @@ class _LengthState extends State<Length> {
       child: InkWell(
         onTap: () => _handleInput(text),
         child: Container(
-          width: double.infinity,
           margin: const EdgeInsets.only(bottom: 10),
           decoration: BoxDecoration(
-            color: Colors.grey.shade300,
+            color: Colors.white12,
             borderRadius: BorderRadius.circular(30),
           ),
           child: Center(
             child: Text(
               text,
-              style: const TextStyle(color: Colors.purpleAccent, fontSize: 20),
+              style: const TextStyle(
+                  color: Colors.purpleAccent, fontSize: 20),
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _numpad() {
+    return Expanded(
+      flex: 3,
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          children: [
+            Expanded(
+              flex: 3,
+              child: Column(
+                children: [
+                  _numRow(["7", "8", "9"]),
+                  _numRow(["4", "5", "6"]),
+                  _numRow(["1", "2", "3"]),
+                  _numRow(["0", ".", ""]),
+                ],
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                children: [
+                  _sideButton("AC"),
+                  const SizedBox(height: 10),
+                  _sideButton("⌫"),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -204,7 +264,7 @@ class _LengthState extends State<Length> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.black,
       body: SafeArea(
         child: Column(
           children: [

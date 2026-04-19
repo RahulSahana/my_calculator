@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:my_calculator/main.dart';
 
 class Finance extends StatelessWidget {
   const Finance({super.key});
@@ -20,7 +19,9 @@ class FinancePage extends StatefulWidget {
 class _FinancePageState extends State<FinancePage> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold();
+    return Scaffold(
+      backgroundColor: Colors.black12,
+    );
   }
 
 }

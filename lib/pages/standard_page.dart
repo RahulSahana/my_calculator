@@ -10,6 +10,7 @@ class HistoryItem {
 
   const HistoryItem(this.expression, this.answer);
 }
+
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
@@ -75,7 +76,8 @@ class _MyCalculatorPageState extends State<MyCalculatorPage> {
 
       String last = _expression[_expression.length - 1];
       if ('+-*/^'.contains(last) && !operator.endsWith('(')) {
-        _expression = _expression.substring(0, _expression.length - 1) + operator;
+        _expression =
+            _expression.substring(0, _expression.length - 1) + operator;
       } else {
         if (_expression == '0' && operator.endsWith('(')) {
           _expression = operator;
@@ -215,88 +217,128 @@ class _MyCalculatorPageState extends State<MyCalculatorPage> {
     return 15.0;
   }
 
-  Widget _buildButton(String text, VoidCallback onPressed, {Color? color}) {
-    return FloatingActionButton(
-      onPressed: onPressed,
-      child: Text(
-        text,
-        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+  Widget _buildButton(
+    String text,
+    VoidCallback onPressed, {
+    Color? color,
+    Color? backgroundColor,
+    double? fontSize,
+  }) {
+    return Expanded(
+      child: Container(
+        margin: const EdgeInsets.all(5),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(50),
+          onTap: onPressed,
+          child: Container(
+            decoration: BoxDecoration(
+              color: backgroundColor,
+              shape: BoxShape.circle,
+            ),
+            child: Center(
+              child: Text(
+                text,
+                style: TextStyle(
+                  color: color ?? Colors.white,
+                  fontSize: fontSize ?? 25,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
-      backgroundColor: color ?? Theme.of(context).colorScheme.primaryContainer,
     );
   }
 
   Widget _basicPad() {
     return Column(
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            _buildButton('AC', _clear, color: Colors.red),
-            _buildButton(
-              '/',
-                  () => _onOperatorPressed('/'),
-              color: Colors.deepOrange,
-            ),
-            _buildButton(
-              'X',
-                  () => _onOperatorPressed('*'),
-              color: Colors.deepOrange,
-            ),
-            _buildButton(
-              '-',
-                  () => _onOperatorPressed('-'),
-              color: Colors.deepOrange,
-            ),
-          ],
+        Expanded(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _buildButton('AC', _clear, color: Colors.purpleAccent),
+              _buildButton(
+                '/',
+                () => _onOperatorPressed('/'),
+                color: Colors.purpleAccent,
+              ),
+              _buildButton(
+                'X',
+                () => _onOperatorPressed('*'),
+                color: Colors.purpleAccent,
+              ),
+              _buildButton(
+                '-',
+                () => _onOperatorPressed('-'),
+                color: Colors.purpleAccent,
+                fontSize: 45,
+              ),
+            ],
+          ),
         ),
-        const SizedBox(height: 16),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            _buildButton('7', () => _onDigitPressed('7')),
-            _buildButton('8', () => _onDigitPressed('8')),
-            _buildButton('9', () => _onDigitPressed('9')),
-            _buildButton(
-              '+',
-                  () => _onOperatorPressed('+'),
-              color: Colors.deepOrange,
-            ),
-          ],
+
+        Expanded(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _buildButton('7', () => _onDigitPressed('7')),
+              _buildButton('8', () => _onDigitPressed('8')),
+              _buildButton('9', () => _onDigitPressed('9')),
+              _buildButton(
+                '+',
+                () => _onOperatorPressed('+'),
+                color: Colors.purpleAccent,
+              ),
+            ],
+          ),
         ),
-        const SizedBox(height: 16),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            _buildButton('4', () => _onDigitPressed('4')),
-            _buildButton('5', () => _onDigitPressed('5')),
-            _buildButton('6', () => _onDigitPressed('6')),
-            _buildButton('%', _percentagePressed, color: Colors.deepOrange),
-          ],
+
+        Expanded(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _buildButton('4', () => _onDigitPressed('4')),
+              _buildButton('5', () => _onDigitPressed('5')),
+              _buildButton('6', () => _onDigitPressed('6')),
+              _buildButton('%', _percentagePressed, color: Colors.purpleAccent),
+            ],
+          ),
         ),
-        const SizedBox(height: 16),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            _buildButton('1', () => _onDigitPressed('1')),
-            _buildButton('2', () => _onDigitPressed('2')),
-            _buildButton('3', () => _onDigitPressed('3')),
-            _buildButton('⌫', _backspace, color: Colors.blue),
-          ],
+
+        Expanded(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _buildButton('1', () => _onDigitPressed('1')),
+              _buildButton('2', () => _onDigitPressed('2')),
+              _buildButton('3', () => _onDigitPressed('3')),
+              _buildButton('⌫', _backspace, color: Colors.purpleAccent),
+            ],
+          ),
         ),
-        const SizedBox(height: 16),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            _buildButton(_isAdvanced ? '🔬' : '⌨️', () {
-              setState(() {
-                _isAdvanced = !_isAdvanced;
-              });
-            }, color: Colors.greenAccent),
-            _buildButton('0', () => _onDigitPressed('0')),
-            _buildButton('.', () => _onDigitPressed('.')),
-            _buildButton('=', _calculate, color: Colors.green),
-          ],
+
+        Expanded(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _buildButton(_isAdvanced ? '🔬' : '⌨️', () {
+                setState(() {
+                  _isAdvanced = !_isAdvanced;
+                });
+              }, color: Colors.greenAccent),
+              _buildButton('0', () => _onDigitPressed('0')),
+              _buildButton('.', () => _onDigitPressed('.')),
+              _buildButton(
+                '=',
+                _calculate,
+                color: Colors.white,
+                backgroundColor: Colors.purpleAccent,
+                fontSize: 35,
+              ),
+            ],
+          ),
         ),
       ],
     );
@@ -305,100 +347,153 @@ class _MyCalculatorPageState extends State<MyCalculatorPage> {
   Widget _advancedPad() {
     return Column(
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            _buildButton('tan', () => _onOperatorPressed('tan(')),
-            _buildButton('√', () => _onOperatorPressed('sqrt(')),
-            _buildButton('^', () => _onOperatorPressed('^')),
-            _buildButton('(', _openBracket),
-            _buildButton(')', _closeBracket),
-          ],
+        Expanded(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _buildButton(
+                'tan',
+                () => _onOperatorPressed('tan('),
+                color: Colors.white70,
+              ),
+              _buildButton(
+                '√',
+                () => _onOperatorPressed('sqrt('),
+                color: Colors.white70,
+              ),
+              _buildButton(
+                '^',
+                () => _onOperatorPressed('^'),
+                color: Colors.white70,
+              ),
+              _buildButton('(', _openBracket, color: Colors.white70),
+              _buildButton(')', _closeBracket, color: Colors.white70),
+            ],
+          ),
         ),
-        const SizedBox(height: 10),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            _buildButton('cos', () => _onOperatorPressed('cos(')),
-            _buildButton('AC', _clear, color: Colors.red),
-            _buildButton(
-              '/',
-                  () => _onOperatorPressed('/'),
-              color: Colors.deepOrange,
-            ),
-            _buildButton(
-              'X',
-                  () => _onOperatorPressed('*'),
-              color: Colors.deepOrange,
-            ),
-            _buildButton(
-              '-',
-                  () => _onOperatorPressed('-'),
-              color: Colors.deepOrange,
-            ),
-          ],
+
+        Expanded(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _buildButton(
+                'cos',
+                () => _onOperatorPressed('cos('),
+                color: Colors.white70,
+              ),
+              _buildButton('AC', _clear, color: Colors.purpleAccent),
+              _buildButton(
+                '/',
+                () => _onOperatorPressed('/'),
+                color: Colors.purpleAccent,
+              ),
+              _buildButton(
+                'X',
+                () => _onOperatorPressed('*'),
+                color: Colors.purpleAccent,
+              ),
+              _buildButton(
+                '-',
+                () => _onOperatorPressed('-'),
+                color: Colors.purpleAccent,
+                fontSize: 45,
+              ),
+            ],
+          ),
         ),
-        const SizedBox(height: 10),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            _buildButton('sin', () => _onOperatorPressed('sin(')),
-            _buildButton('7', () => _onDigitPressed('7')),
-            _buildButton('8', () => _onDigitPressed('8')),
-            _buildButton('9', () => _onDigitPressed('9')),
-            _buildButton(
-              '+',
-                  () => _onOperatorPressed('+'),
-              color: Colors.deepOrange,
-            ),
-          ],
+
+        Expanded(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _buildButton(
+                'sin',
+                () => _onOperatorPressed('sin('),
+                color: Colors.white70,
+              ),
+              _buildButton('7', () => _onDigitPressed('7')),
+              _buildButton('8', () => _onDigitPressed('8')),
+              _buildButton('9', () => _onDigitPressed('9')),
+              _buildButton(
+                '+',
+                () => _onOperatorPressed('+'),
+                color: Colors.purpleAccent,
+                fontSize: 35,
+              ),
+            ],
+          ),
         ),
-        const SizedBox(height: 10),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            _buildButton('log', () => _onOperatorPressed('log(')),
-            _buildButton('4', () => _onDigitPressed('4')),
-            _buildButton('5', () => _onDigitPressed('5')),
-            _buildButton('6', () => _onDigitPressed('6')),
-            _buildButton('%', _percentagePressed, color: Colors.deepOrange),
-          ],
+
+        Expanded(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _buildButton(
+                'log',
+                () => _onOperatorPressed('log('),
+                color: Colors.white70,
+              ),
+              _buildButton('4', () => _onDigitPressed('4')),
+              _buildButton('5', () => _onDigitPressed('5')),
+              _buildButton('6', () => _onDigitPressed('6')),
+              _buildButton('%', _percentagePressed, color: Colors.purpleAccent),
+            ],
+          ),
         ),
-        const SizedBox(height: 10),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            _buildButton('e', () => _onDigitPressed('2.7183')),
-            _buildButton('1', () => _onDigitPressed('1')),
-            _buildButton('2', () => _onDigitPressed('2')),
-            _buildButton('3', () => _onDigitPressed('3')),
-            _buildButton('⌫', _backspace, color: Colors.blue),
-          ],
+
+        Expanded(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _buildButton(
+                'e',
+                () => _onDigitPressed('2.7183'),
+                color: Colors.white70,
+              ),
+              _buildButton('1', () => _onDigitPressed('1')),
+              _buildButton('2', () => _onDigitPressed('2')),
+              _buildButton('3', () => _onDigitPressed('3')),
+              _buildButton('⌫', _backspace, color: Colors.purpleAccent),
+            ],
+          ),
         ),
-        const SizedBox(height: 10),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            _buildButton(_isAdvanced ? '🔬' : '⌨️', () {
-              setState(() {
-                _isAdvanced = !_isAdvanced;
-              });
-            }, color: Colors.greenAccent),
-            _buildButton('π', () => _onDigitPressed('π')),
-            _buildButton('0', () => _onDigitPressed('0')),
-            _buildButton('.', () => _onDigitPressed('.')),
-            _buildButton('=', _calculate, color: Colors.green),
-          ],
+
+        Expanded(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _buildButton(_isAdvanced ? '🔬' : '⌨️', () {
+                setState(() {
+                  _isAdvanced = !_isAdvanced;
+                });
+              }, color: Colors.greenAccent),
+              _buildButton(
+                'π',
+                () => _onDigitPressed('π'),
+                color: Colors.white70,
+              ),
+              _buildButton('0', () => _onDigitPressed('0')),
+              _buildButton('.', () => _onDigitPressed('.')),
+              _buildButton(
+                '=',
+                _calculate,
+                color: Colors.white,
+                backgroundColor: Colors.purpleAccent,
+                fontSize: 35,
+              ),
+            ],
+          ),
         ),
       ],
     );
   }
 
-  Widget _calculatorBody(){
+  Widget _calculatorBody() {
     return Column(
       children: [
         Expanded(
-          // history
+          // history takes remaining space
+          flex: 3,
           child: ListView.builder(
             reverse: false,
             itemCount: _history.length,
@@ -418,7 +513,7 @@ class _MyCalculatorPageState extends State<MyCalculatorPage> {
                             ? 25
                             : _getFontSize(item.expression.length),
                         fontWeight: FontWeight.bold,
-                        color: Colors.black12,
+                        color: Colors.white24,
                       ),
                     ),
                     // answer
@@ -427,7 +522,7 @@ class _MyCalculatorPageState extends State<MyCalculatorPage> {
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black12,
+                        color: Colors.white24,
                       ),
                     ),
                   ],
@@ -437,7 +532,7 @@ class _MyCalculatorPageState extends State<MyCalculatorPage> {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.only(right: 20),
+          padding: const EdgeInsets.only(right: 20, top: 10, bottom: 10),
           child: Column(
             children: [
               // expression
@@ -448,7 +543,7 @@ class _MyCalculatorPageState extends State<MyCalculatorPage> {
                   style: TextStyle(
                     fontSize: _getFontSize(_expression.length),
                     fontWeight: FontWeight.bold,
-                    color: Colors.black,
+                    color: Colors.white,
                   ),
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
@@ -464,17 +559,21 @@ class _MyCalculatorPageState extends State<MyCalculatorPage> {
                     fontSize: _justEvaluated ? 48 : 20,
                     fontWeight: FontWeight.bold,
                     color: _justEvaluated
-                        ? Colors.deepOrange
-                        : Colors.orangeAccent,
+                        ? Colors.purpleAccent
+                        : Colors.purpleAccent,
                   ),
                 ),
               ),
             ],
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.all(16),
-          child: _isAdvanced ? _advancedPad() : _basicPad(),
+        Divider(color: Colors.grey.shade800, height: 2),
+        Expanded(
+          flex: _isAdvanced ? 5 : 4,
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: _isAdvanced ? _advancedPad() : _basicPad(),
+          ),
         ),
         SizedBox(height: 20),
       ],
@@ -482,78 +581,105 @@ class _MyCalculatorPageState extends State<MyCalculatorPage> {
   }
 
   Widget _buildBody() {
-    switch(_selectMode) {
-      case 0 : return _calculatorBody();
-      case 1 : return const ConversionPage();
-      case 2 : return const Finance();
-      default : return _calculatorBody();
+    switch (_selectMode) {
+      case 0:
+        return _calculatorBody();
+      case 1:
+        return const ConversionPage();
+      case 2:
+        return const Finance();
+      default:
+        return _calculatorBody();
     }
-}
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black,
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+        backgroundColor: Colors.black,
         titleSpacing: 0,
         title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              IconButton(onPressed: () { setState(() {_selectMode = 0;});}, icon: Icon(Icons.calculate)),
-              IconButton(onPressed: () { setState(() {_selectMode = 1;});}, icon: Icon(Icons.swap_horiz)),
-              IconButton(onPressed: () { setState(() {_selectMode = 2;});}, icon: Icon(Icons.account_balance)),
-              IconButton(
-                icon: Icon(Icons.delete_outlined),
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      title: Text(
-                        'Clear History',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            IconButton(
+              onPressed: () {
+                setState(() {
+                  _selectMode = 0;
+                });
+              },
+              icon: Icon(Icons.calculate, color: Colors.white),
+            ),
+            IconButton(
+              onPressed: () {
+                setState(() {
+                  _selectMode = 1;
+                });
+              },
+              icon: Icon(Icons.swap_horiz, color: Colors.white),
+            ),
+            IconButton(
+              onPressed: () {
+                setState(() {
+                  _selectMode = 2;
+                });
+              },
+              icon: Icon(Icons.account_balance, color: Colors.white),
+            ),
+            IconButton(
+              icon: Icon(Icons.delete_outlined, color: Colors.white),
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    backgroundColor: Colors.grey[900],
+                    title: Text(
+                      'Clear History',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
                       ),
-                      content: Text(
-                        'Are you sure you want to clear the history?',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: Text(
-                            "Cancel",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
-                          ),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            setState(() {
-                              _history.clear();
-                            });
-                            Navigator.pop(context);
-                          },
-                          child: Text(
-                            "Clear",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
-                          ),
-                        ),
-                      ],
                     ),
-                  );
-                },
-              ),
-            ],
+                    content: Text(
+                      'Are you sure you want to clear the history?',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white70,
+                      ),
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: Text(
+                          "Cancel",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          setState(() {
+                            _history.clear();
+                          });
+                          Navigator.pop(context);
+                        },
+                        child: Text(
+                          "Clear",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.red,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ],
         ),
       ),
       body: _buildBody(),
