@@ -96,7 +96,7 @@ I built this project to go beyond basic apps and understand:
 
 ## 📦 Download APK
 
-👉 [Download v3.0.0](https://github.com/RahulSahana/my_calculator/releases/download/v3.0.0/calculator-app-v3.0.0.apk)
+👉 [Download v3.1.0](https://github.com/RahulSahana/my_calculator/releases/download/v3.1.0/calculator-app-v3.1.0.apk)
 
 ---
 

@@ -1,50 +1,72 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 
-class Discount extends StatefulWidget {
-  const Discount({super.key});
+class EmiCalculator extends StatefulWidget {
+  const EmiCalculator({super.key});
 
   @override
-  State<Discount> createState() => _DiscountState();
+  State<EmiCalculator> createState() => _EmiCalculatorState();
 }
 
-class _DiscountState extends State<Discount> {
-  String _priceInput = "0";
-  String _discountInput = "0";
-  bool _isPriceActive = true;
+class _EmiCalculatorState extends State<EmiCalculator> {
+  String _loanAmount = "0";
+  String _interestRate = "0";
+  String _tenure = "0";
+  int _activeIndex = 0; // 0: Amount, 1: Rate, 2: Tenure
 
   void _handleInput(String text) {
     setState(() {
-      String current = _isPriceActive ? _priceInput : _discountInput;
+      String current;
+      if (_activeIndex == 0) current = _loanAmount;
+      else if (_activeIndex == 1) current = _interestRate;
+      else current = _tenure;
+
       if (text == "AC") {
-        if (_isPriceActive) _priceInput = "0"; else _discountInput = "0";
+        current = "0";
       } else if (text == "⌫") {
         if (current.length > 1) {
           current = current.substring(0, current.length - 1);
         } else {
           current = "0";
         }
-        if (_isPriceActive) _priceInput = current; else _discountInput = current;
       } else {
         if (current == "0" && text != ".") {
           current = text;
         } else {
           if (text == "." && current.contains(".")) return;
-          if (current.length < 10) {
+          if (current.length < 12) {
             current += text;
           }
         }
-        if (_isPriceActive) _priceInput = current; else _discountInput = current;
       }
+
+      if (_activeIndex == 0) _loanAmount = current;
+      else if (_activeIndex == 1) _interestRate = current;
+      else _tenure = current;
     });
   }
 
-  double get _originalPrice => double.tryParse(_priceInput) ?? 0;
-  double get _discountPercent => double.tryParse(_discountInput) ?? 0;
-  double get _savings => _originalPrice * (_discountPercent / 100);
-  double get _finalPrice => _originalPrice - _savings;
+  Map<String, double> _calculateEmi() {
+    double p = double.tryParse(_loanAmount) ?? 0;
+    double r = (double.tryParse(_interestRate) ?? 0) / 12 / 100;
+    double n = (double.tryParse(_tenure) ?? 0) * 12;
+
+    if (p == 0 || r == 0 || n == 0) return {"emi": 0, "total": 0, "interest": 0};
+
+    double emi = (p * r * pow(1 + r, n)) / (pow(1 + r, n) - 1);
+    double totalPayable = emi * n;
+    double totalInterest = totalPayable - p;
+
+    return {
+      "emi": emi,
+      "total": totalPayable,
+      "interest": totalInterest,
+    };
+  }
 
   @override
   Widget build(BuildContext context) {
+    var results = _calculateEmi();
     return Scaffold(
       backgroundColor: Colors.black,
       body: SafeArea(
@@ -52,22 +74,17 @@ class _DiscountState extends State<Discount> {
           children: [
             _topBar(),
             Expanded(
-              flex: 2,
+              flex: 3,
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    _inputRow("Original Price", _priceInput, "", _isPriceActive, () => setState(() => _isPriceActive = true)),
-                    _inputRow("Discount (% )", _discountInput, "%", !_isPriceActive, () => setState(() => _isPriceActive = false)),
+                    _inputRow("Loan Amount", _loanAmount, "", _activeIndex == 0, () => setState(() => _activeIndex = 0)),
+                    _inputRow("Interest Rate", _interestRate, "% p.a.", _activeIndex == 1, () => setState(() => _activeIndex = 1)),
+                    _inputRow("Tenure", _tenure, "Years", _activeIndex == 2, () => setState(() => _activeIndex = 2)),
                     const Divider(color: Colors.white24),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        _resultCol("Final Price", _finalPrice.toStringAsFixed(2)),
-                        _resultCol("You Save", _savings.toStringAsFixed(2)),
-                      ],
-                    ),
+                    _resultSection(results),
                   ],
                 ),
               ),
@@ -86,7 +103,7 @@ class _DiscountState extends State<Discount> {
       child: Row(
         children: [
           IconButton(icon: const Icon(Icons.arrow_back, color: Colors.purpleAccent), onPressed: () => Navigator.pop(context)),
-          const Expanded(child: Center(child: Text("Discount Calculator", style: TextStyle(color: Colors.purpleAccent, fontSize: 22)))),
+          const Expanded(child: Center(child: Text("EMI Calculator", style: TextStyle(color: Colors.purpleAccent, fontSize: 22)))),
           const SizedBox(width: 48),
         ],
       ),
@@ -106,18 +123,31 @@ class _DiscountState extends State<Discount> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(label, style: const TextStyle(color: Colors.white, fontSize: 18)),
-            Text(value + unit, style: TextStyle(color: isActive ? Colors.purpleAccent : Colors.grey, fontSize: 28, fontWeight: FontWeight.bold)),
+            Text(value + unit, style: TextStyle(color: isActive ? Colors.purpleAccent : Colors.grey, fontSize: 24, fontWeight: FontWeight.bold)),
           ],
         ),
       ),
     );
   }
 
-  Widget _resultCol(String label, String value) {
+  Widget _resultSection(Map<String, double> results) {
     return Column(
       children: [
+        _resultRow("Monthly EMI", results['emi']!.toStringAsFixed(2)),
+        const SizedBox(height: 10),
+        _resultRow("Total Interest", results['interest']!.toStringAsFixed(2)),
+        const SizedBox(height: 10),
+        _resultRow("Total Payable", results['total']!.toStringAsFixed(2)),
+      ],
+    );
+  }
+
+  Widget _resultRow(String label, String value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
         Text(label, style: const TextStyle(color: Colors.grey, fontSize: 16)),
-        Text(value, style: const TextStyle(color: Colors.purpleAccent, fontSize: 24, fontWeight: FontWeight.bold)),
+        Text(value, style: const TextStyle(color: Colors.purpleAccent, fontSize: 20, fontWeight: FontWeight.bold)),
       ],
     );
   }
