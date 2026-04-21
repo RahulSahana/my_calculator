@@ -90,7 +90,7 @@ I built this project to go beyond basic apps and understand:
 
 > Add your latest screenshots here
 
-![App Screenshot](screenshots/app_v_3.0.0.png)
+![App Screenshot](screenshots/app_v_3.1.0.png)
 
 ---
 
