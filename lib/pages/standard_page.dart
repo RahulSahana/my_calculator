@@ -1,6 +1,7 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:math_expressions/math_expressions.dart';
-import 'package:my_calculator/main.dart';
 import 'package:my_calculator/pages/conversion_page.dart';
 import 'package:my_calculator/pages/finance_page.dart';
 
@@ -75,6 +76,16 @@ class _MyCalculatorPageState extends State<MyCalculatorPage> {
       }
 
       String last = _expression[_expression.length - 1];
+
+      if(operator == 'sqrt(' && last != '0'){
+        //_openBrackets++;
+        if (RegExp(r'[0-9)eπ]').hasMatch(last)) {
+          _expression += '*';
+        } else {
+          _expression += '';
+        }
+      }
+
       if ('+-*/^'.contains(last) && !operator.endsWith('(')) {
         _expression =
             _expression.substring(0, _expression.length - 1) + operator;
@@ -122,12 +133,13 @@ class _MyCalculatorPageState extends State<MyCalculatorPage> {
 
   String _prepareExpression() {
     String exp = _expression;
+    int tempOpenBrackets = _openBrackets;
 
     exp = exp.replaceAll('π', '3.14159265');
 
-    while (_openBrackets > 0) {
+    while (tempOpenBrackets > 0) {
       exp += ')';
-      _openBrackets--;
+      tempOpenBrackets--;
     }
 
     if (exp.isNotEmpty && '+-*/^('.contains(exp[exp.length - 1])) {
@@ -154,7 +166,6 @@ class _MyCalculatorPageState extends State<MyCalculatorPage> {
         if (i <= 0) return;
 
         String left = _expression.substring(0, i);
-        String op = _expression[i];
         String right = _expression.substring(i + 1);
 
         double first = double.parse(left);
@@ -192,12 +203,33 @@ class _MyCalculatorPageState extends State<MyCalculatorPage> {
 
   void _backspace() {
     setState(() {
-      if (_expression.length > 1) {
-        _expression = _expression.substring(0, _expression.length - 1);
-        _justEvaluated = false;
+      if (_expression == 'Error' ||
+          _expression == 'Infinity' ||
+          _expression == 'NaN' ||
+          _expression == '0') {
+        _expression = '0';
       } else {
-        _expression = "0";
+        if (_expression.endsWith('sin(') ||
+            _expression.endsWith('cos(') ||
+            _expression.endsWith('tan(') ||
+            _expression.endsWith('log(')) {
+          _expression = _expression.substring(0, _expression.length - 4);
+          if (_openBrackets > 0) _openBrackets--;
+        } else if (_expression.endsWith('sqrt(')) {
+          _expression = _expression.substring(0, _expression.length - 5);
+          if (_openBrackets > 0) _openBrackets--;
+        } else {
+          String lastChar = _expression[_expression.length - 1];
+          if (lastChar == '(') {
+            if (_openBrackets > 0) _openBrackets--;
+          } else if (lastChar == ')') {
+            _openBrackets++;
+          }
+          _expression = _expression.substring(0, _expression.length - 1);
+        }
+        if (_expression.isEmpty) _expression = '0';
       }
+      _justEvaluated = false;
     });
   }
 
@@ -290,6 +322,7 @@ class _MyCalculatorPageState extends State<MyCalculatorPage> {
                 '+',
                 () => _onOperatorPressed('+'),
                 color: Colors.purpleAccent,
+                fontSize: 35,
               ),
             ],
           ),
@@ -609,7 +642,7 @@ class _MyCalculatorPageState extends State<MyCalculatorPage> {
                   _selectMode = 0;
                 });
               },
-              icon: Icon(Icons.calculate, color: Colors.white),
+              icon: Icon(Icons.calculate, color: Colors.purpleAccent),
             ),
             IconButton(
               onPressed: () {
@@ -617,7 +650,7 @@ class _MyCalculatorPageState extends State<MyCalculatorPage> {
                   _selectMode = 1;
                 });
               },
-              icon: Icon(Icons.swap_horiz, color: Colors.white),
+              icon: Icon(Icons.swap_horiz, color: Colors.purpleAccent),
             ),
             IconButton(
               onPressed: () {
@@ -625,10 +658,10 @@ class _MyCalculatorPageState extends State<MyCalculatorPage> {
                   _selectMode = 2;
                 });
               },
-              icon: Icon(Icons.account_balance, color: Colors.white),
+              icon: Icon(Icons.account_balance, color: Colors.purpleAccent),
             ),
             IconButton(
-              icon: Icon(Icons.delete_outlined, color: Colors.white),
+              icon: Icon(Icons.delete_outlined, color: Colors.purpleAccent),
               onPressed: () {
                 showDialog(
                   context: context,
@@ -670,7 +703,7 @@ class _MyCalculatorPageState extends State<MyCalculatorPage> {
                           "Clear",
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
-                            color: Colors.red,
+                            color: Colors.purpleAccent,
                           ),
                         ),
                       ),
